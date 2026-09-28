@@ -46,7 +46,7 @@ table{border-collapse:collapse;width:100%;margin:16px 0;font-size:15px;display:b
 th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}th{background:var(--keylime)}
 .faq{background:var(--keylime);border-radius:var(--r);padding:8px 20px 12px;margin:32px 0}
 .cta{background:var(--forest);color:var(--cream);border-radius:var(--r);padding:24px;margin:36px 0}
-.cta h2{color:var(--cream);margin-top:0}.cta p{color:var(--cream)}.cta a.btn{background:var(--cream);color:var(--forest)}
+.cta h2{color:var(--cream);margin-top:0}.cta p{color:var(--cream)}.cta a.btn{background:var(--cream);color:var(--forest)}.cta ul{margin:6px 0 18px;padding-left:20px}.cta li{color:var(--cream);margin:4px 0}.cta .sec{display:inline-block;margin-left:14px;color:var(--sage);font-size:15px}
 .disc{font-size:14px;color:var(--muted);border-top:1px solid var(--border);padding-top:14px;margin:28px 0 48px}
 .list{list-style:none;padding:0;display:grid;gap:10px;margin:24px 0 48px}
 .list a{display:block;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-decoration:none;background:#fff}
@@ -61,10 +61,15 @@ HEAD = """<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name=
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&family=Onest:wght@400;500;600&display=swap">
 <style>{css}</style>{ld}</head><body>
-<header class="top"><div class="w" style="max-width:1100px"><a class="logo" href="{base}/">ЭНО мед</a><span style="display:flex;gap:8px"><a class="btn light" href="{base}/stati/">Статьи</a><a class="btn" href="{cta}">Получить план</a></span></div></header>
+<header class="top"><div class="w" style="max-width:1100px"><a class="logo" href="{base}/">ЭНО мед</a><span style="display:flex;gap:8px"><a class="btn light" href="{base}/stati/">Статьи</a><a class="btn" href="{base}/">Об ЭНО мед</a></span></div></header>
 """
 FOOT = """<footer><div class="w">«ЭНО мед» не является медицинской организацией. Лечение проводит партнёрская клиника в Хэйхэ. ИП Ожегов Р.В., ИНН 280113718085. Концепт подготовлен ИИщенко LAB для встречи ИИщенко CLUB 29.09.2026.</div></footer></body></html>"""
 
+CTA_BLOCK = (f'<section class="cta"><h2>Кто такие «ЭНО мед» и как мы сопровождаем лечение</h2>'
+  '<p>Мы из Благовещенска и организуем лечение зубов в Хэйхэ так, чтобы вы заранее понимали каждый шаг:</p>'
+  '<ul><li>план лечения и смета — до поездки, без предоплаты;</li><li>русскоговорящий куратор — от границы до кресла врача и после возвращения;</li>'
+  '<li>клиника с лицензией и открытыми документами врачей;</li><li>паспорт импланта на руках после лечения.</li></ul>'
+  f'<a class="btn" href="{BASE}/">Узнать подробности →</a><a class="sec" href="{CTA}">или сразу получить план лечения</a></section>')
 md = markdown.Markdown(extensions=['tables'])
 for a in arts:
     body = re.sub(r'\(/stati/([^)]+)\)', fix_link, a['body'])
@@ -83,9 +88,7 @@ for a in arts:
             md.reset(); out.append('<section class="faq">' + md.convert(part) + '</section>')
         elif part.startswith('## Получить'):
             seg = part.split('\n---\n')
-            md.reset(); cta_html = md.convert(seg[0])
-            cta_html = cta_html.replace('<a href', '<a class="btn" href')
-            out.append('<section class="cta">' + cta_html + '</section>')
+            out.append(CTA_BLOCK)
             if len(seg) > 1:
                 md.reset(); disc = md.convert(seg[1].strip())
         else:
@@ -114,7 +117,7 @@ page = HEAD.format(title='Статьи о лечении зубов в Хэйх�
 page += f'<main class="w"><div class="crumbs"><a href="{BASE}/">Главная</a> · Статьи</div><h1>Всё о лечении зубов в Хэйхэ</h1><p>30 статей под самые частые вопросы, которые люди задают Яндексу. Без обещаний и рекламы — честно о ценах, страхах и том, как всё устроено.</p>'
 for name, ns in groups:
     page += f'<h2>{name}</h2><ul class="list">' + ''.join(f'<li><a href="{BASE}/stati/{byn[n]["slug"]}/"><b>{html.escape(byn[n]["title"])}</b><span>{html.escape(byn[n]["desc"])}</span></a></li>' for n in ns) + '</ul>'
-page += f'<section class="cta"><h2>Начните с плана лечения</h2><p>Пришлите описание и снимки куратору — врач составит предварительный план и расчёт до поездки, без предоплаты.</p><a class="btn" href="{CTA}">Получить план и расчёт →</a></section></main>' + FOOT
+page += CTA_BLOCK + '</main>' + FOOT
 os.makedirs(REPO + '/stati', exist_ok=True)
 open(REPO + '/stati/index.html', 'w', encoding='utf-8').write(page)
 print('ok', len(arts), 'faq per article:', [a['faqn'] for a in arts])
