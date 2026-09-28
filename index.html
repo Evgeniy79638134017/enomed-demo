@@ -393,6 +393,40 @@ h1,h2,h3,h4,.price,.stat b,.cf b,.j-count,.panel .n,.case .big,.save b,.bar .top
 
 .stk{position:relative}
 .stk>section{position:sticky;top:0}
+
+/* ---- mobile polish ---- */
+.cf,.cfacts>*{min-width:0}
+.cfacts{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:860px){
+  .cfacts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cf{padding:18px}.cf b{font-size:28px}
+  .bar .top{flex-direction:column;align-items:flex-start;gap:4px}
+  .bar .top b{font-size:26px}
+  .dfeat{grid-template-columns:1fr}
+  .dfeat .dph{min-height:0;aspect-ratio:4/3}
+  .dfeat .dph img{object-position:50% 18%}
+  .reg div{grid-template-columns:84px 1fr}
+  .globe-sec{height:auto;min-height:0;padding:80px 0 20px}
+  .globe-sec .wrap{padding-top:0}
+  .globe-box{height:62vw;max-height:420px}
+  .lines-sec .t h2{font-size:24px}
+  .lines-sec blockquote{font-size:14px}
+  #lines{height:30svh;bottom:3svh}
+  .fab{padding:0;width:56px;height:56px;justify-content:center;font-size:0;gap:0}
+  .fab:before{content:"";width:22px;height:22px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fffefc' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z'/%3E%3C/svg%3E")}
+  .fab .fab-dot{position:absolute;top:6px;right:6px}
+  .ctaband{padding:22px}
+  .ctaband h3{font-size:24px}
+  .hero-stage{height:52svh!important}
+  .stage h1{font-size:34px}
+  .trust{justify-content:flex-start;gap:8px 18px;font-size:13px}
+  .rv{padding:20px}
+  .cur-q{font-size:16px}
+  .lm-card{padding:22px 18px}
+  .lm-card h3{font-size:24px}
+  .doctors,.clinic-grid{gap:10px}
+}
+@media (max-width:420px){.stats{grid-template-columns:1fr 1fr}.rv-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.rv-stats b{font-size:28px}.nav .btn{padding:10px 12px;font-size:13px}.logo{font-size:20px}}
 footer{border-top:1px solid var(--border);padding:34px 0 50px;font-size:12px;color:var(--muted)}
 footer .wrap{display:grid;gap:10px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -453,8 +487,10 @@ footer .wrap{display:grid;gap:10px}
         <div class="hud" aria-hidden="true">
           <div class="dots"></div>
           <svg id="hudsvg">
-            <ellipse id="ring1" fill="none" stroke="rgba(15,62,23,.35)" stroke-width="1" stroke-dasharray="2 6"/>
-            <ellipse id="ring2" fill="none" stroke="rgba(255,254,252,.8)" stroke-width="1.2" stroke-dasharray="60 400" stroke-linecap="round"/>
+            <defs><mask id="behindMask" maskUnits="userSpaceOnUse"><rect id="bmAll" x="-5000" y="-5000" width="10000" height="10000" fill="#fff"/><rect id="bmObj" fill="#000" rx="30"/></mask></defs>
+            <g mask="url(#behindMask)"><path id="ring1b" fill="none" stroke="rgba(15,62,23,.35)" stroke-width="1" stroke-dasharray="2 6"/><path id="ring2b" fill="none" stroke="rgba(255,254,252,.8)" stroke-width="1.2" stroke-dasharray="60 400" stroke-linecap="round"/></g>
+            <path id="ring1f" fill="none" stroke="rgba(15,62,23,.35)" stroke-width="1" stroke-dasharray="2 6"/><path id="ring2f" fill="none" stroke="rgba(255,254,252,.8)" stroke-width="1.2" stroke-dasharray="60 400" stroke-linecap="round"/>
+            
             <g id="dim" stroke="rgba(15,62,23,.55)" stroke-width="1" fill="none"><line id="dimL"/><line id="dimT"/><line id="dimB"/></g>
             <text id="dimTxt" font-family="JetBrains Mono, monospace" font-size="10" fill="#0f3e17" opacity=".8"></text>
             <g id="cross" stroke="rgba(15,62,23,.5)" stroke-width="1"><line id="cx1"/><line id="cx2"/><circle id="cc" r="10" fill="none"/></g>
@@ -794,9 +830,12 @@ function hudTick(t,e,sc,r){
   const top=parts[0].getBoundingClientRect().top-r.top,bot=parts[2].getBoundingClientRect().bottom-r.top;
   const cx=rr.left-r.left+rr.width/2,cy=(top+bot)/2;
   const rx=Math.min(w*.36,200+e*40),ry=rx*.26;
-  const r1=$('ring1'),r2=$('ring2');
-  [r1,r2].forEach(el=>{el.setAttribute('cx',cx);el.setAttribute('cy',bot-10);el.setAttribute('rx',rx);el.setAttribute('ry',ry);});
-  r1.setAttribute('stroke-dashoffset',-(t*.01)%400);r2.setAttribute('stroke-dashoffset',-(t*.08)%460);
+  // orbit: back half (upper arc) is masked where the object stands, front half (lower arc) passes in front
+  const ey=bot-10,backD=`M ${cx-rx} ${ey} A ${rx} ${ry} 0 0 1 ${cx+rx} ${ey}`,frontD=`M ${cx+rx} ${ey} A ${rx} ${ry} 0 0 1 ${cx-rx} ${ey}`;
+  $('ring1b').setAttribute('d',backD);$('ring2b').setAttribute('d',backD);$('ring1f').setAttribute('d',frontD);$('ring2f').setAttribute('d',frontD);
+  const ob=parts[2].getBoundingClientRect(),oc=parts[0].getBoundingClientRect(),m=$('bmObj');
+  const ow=Math.max(ob.width,oc.width)*1.15;m.setAttribute('x',cx-ow/2);m.setAttribute('width',ow);m.setAttribute('y',top-20);m.setAttribute('height',Math.max(10,ey-top+20));
+  const o1=-(t*.01)%400,o2=-(t*.08)%460;['ring1b','ring1f'].forEach(id=>$(id).setAttribute('stroke-dashoffset',o1));['ring2b','ring2f'].forEach(id=>$(id).setAttribute('stroke-dashoffset',o2));
   // dimension line left of object
   const dx=cx-rx*.62;$('dimL').setAttribute('x1',dx);$('dimL').setAttribute('x2',dx);$('dimL').setAttribute('y1',top);$('dimL').setAttribute('y2',bot);
   [['dimT',top],['dimB',bot]].forEach(([id,y])=>{const l=$(id);l.setAttribute('x1',dx-6);l.setAttribute('x2',dx+6);l.setAttribute('y1',y);l.setAttribute('y2',y);});
